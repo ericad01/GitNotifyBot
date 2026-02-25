@@ -1,0 +1,11 @@
+python-telegram-bot[job-queue]==21.6
+requests==2.31.0
+flask==3.0.0
+pytest
+pytest-mock
+pytest-cov
+pylint
+mypy
+flake8
+black
+isort
