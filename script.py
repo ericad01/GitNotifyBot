@@ -9,7 +9,7 @@ from telegram.ext import (
     ContextTypes,
 )
 
-from config import TELEGRAM_TOKEN, DB_FILE
+from config import TELEGRAM_TOKEN, DB_FILE, CHECK_INTERVAL
 from oauth_server import generate_oauth_url
 
 logging.basicConfig(
@@ -96,6 +96,14 @@ def load_all_repos():
         ).fetchall()
 
 
+def update_sha_db(chat_id, repo, branch, sha):
+    with sqlite3.connect(DB_FILE) as conn:
+        conn.execute(
+            "UPDATE repos SET last_sha=? WHERE chat_id=? AND repo=? AND branch=?",
+            (sha, chat_id, repo, branch),
+        )
+
+
 # ================= GITHUB API =================
 
 
@@ -127,6 +135,24 @@ def get_commits_since(chat_id, repo, branch, since_sha):
             break
         new_commits.append(c)
     return latest_sha, new_commits
+
+
+def format_commit_digest(repo, branch, new_commits):
+    count = len(new_commits)
+    authors = list({c["commit"]["author"]["name"] for c in new_commits})
+    lines = [
+        f"📦 *{count} nuovi commit su* `{repo}` (branch: `{branch}`)",
+        f"👥 *Autori:* {', '.join(authors)}",
+        "",
+    ]
+    for c in new_commits[:5]:
+        sha_short = c["sha"][:7]
+        msg_line = c["commit"]["message"].split("\n")[0]
+        author = c["commit"]["author"]["name"]
+        lines.append(f"• [`{sha_short}`]({c['html_url']}) {msg_line} — _{author}_")
+    if count > 5:
+        lines.append(f"_...e altri {count - 5} commit._")
+    return "\n".join(lines)
 
 
 # ================= AUTH DECORATOR =================
@@ -282,6 +308,25 @@ async def remove_repo(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(msg, parse_mode="Markdown")
 
 
+# ================= JOBS =================
+
+
+async def check_repositories(context: ContextTypes.DEFAULT_TYPE):
+    for chat_id, repo, branch, last_sha in load_all_repos():
+        try:
+            latest_sha, new_commits = get_commits_since(chat_id, repo, branch, last_sha)
+            if latest_sha and new_commits:
+                update_sha_db(chat_id, repo, branch, latest_sha)
+                await context.bot.send_message(
+                    chat_id,
+                    format_commit_digest(repo, branch, new_commits),
+                    parse_mode="Markdown",
+                    disable_web_page_preview=True,
+                )
+        except Exception as e:
+            logging.error(f"Errore check commit {repo}@{branch}: {e}")
+
+
 # ================= MAIN =================
 
 
@@ -295,6 +340,8 @@ def main():
     app.add_handler(CommandHandler("add", add_repo))
     app.add_handler(CommandHandler("list", list_repos))
     app.add_handler(CommandHandler("remove", remove_repo))
+
+    app.job_queue.run_repeating(check_repositories, interval=CHECK_INTERVAL, first=10)
 
     logging.info("Bot avviato!")
     app.run_polling()
