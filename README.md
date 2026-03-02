@@ -7,10 +7,10 @@ Il **Git Notify Bot** (o GitHub Commit Tracker Bot) è un bot Telegram progettat
 
 Il bot offre una serie di strumenti per restare sempre aggiornati sullo sviluppo dei tuoi progetti direttamente da Telegram:
 
-* **Monitoraggio Repository:** Aggiungi facilmente una o più repository (pubbliche o private) da tenere d'occhio.
-* **Notifiche Push & Release:** Ricevi avvisi automatici in caso di nuove push o quando viene pubblicata una nuova release.
-* **Integrazione GitHub OAuth:** Collega in modo sicuro il tuo account GitHub per autorizzare il bot ad accedere alle tue repository private.
-* **Filtri per Branch:** Scegli esattamente quale branch monitorare (es. `main`, `develop`, `release`) per concentrarti solo sugli aggiornamenti che ti interessano.
+* **Monitoraggio Repository:** aggiungi facilmente una o più repository (pubbliche o private) da tenere d'occhio.
+* **Notifiche Push & Release:** ricevi avvisi automatici in caso di nuove push o quando viene pubblicata una nuova release.
+* **Integrazione GitHub OAuth:** collega in modo sicuro il tuo account GitHub per autorizzare il bot ad accedere alle tue repository private.
+* **Filtri per Branch:** scegli esattamente quale branch monitorare (es. `main`, `develop`, `release`) per concentrarti solo sugli aggiornamenti che ti interessano.
 
 
 ## Sistema di Notifiche Intelligente
