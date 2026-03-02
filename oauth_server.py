@@ -1,13 +1,3 @@
-"""
-oauth_server.py — Server Flask per gestire il callback GitHub OAuth.
-
-Avvialo con: python oauth_server.py
-Gira su http://localhost:5001 (o sul tuo server pubblico).
-
-Gli oauth_states vengono salvati nel DB SQLite invece che in memoria,
-cosi' sono condivisi tra il processo del bot (script.py) e questo server.
-"""
-
 import sqlite3
 import secrets
 import requests
