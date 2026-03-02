@@ -25,7 +25,6 @@ ENV/
 
 # Environment variables
 *.env
-.env.*
 config.ini
 secrets.yaml
 secrets.yml
