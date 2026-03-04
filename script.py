@@ -57,17 +57,14 @@ MAIN_KEYBOARD = ReplyKeyboardMarkup(
 
 def init_db():
     with sqlite3.connect(DB_FILE) as conn:
-        conn.execute(
-            """
+        conn.execute("""
             CREATE TABLE IF NOT EXISTS users (
                 chat_id         INTEGER PRIMARY KEY,
                 github_token    TEXT,
                 github_username TEXT
             )
-        """
-        )
-        conn.execute(
-            """
+        """)
+        conn.execute("""
             CREATE TABLE IF NOT EXISTS repos (
                 chat_id  INTEGER,
                 repo     TEXT,
@@ -75,18 +72,15 @@ def init_db():
                 last_sha TEXT,
                 PRIMARY KEY (chat_id, repo, branch)
             )
-        """
-        )
-        conn.execute(
-            """
+        """)
+        conn.execute("""
             CREATE TABLE IF NOT EXISTS releases (
                 chat_id  INTEGER,
                 repo     TEXT,
                 last_tag TEXT,
                 PRIMARY KEY (chat_id, repo)
             )
-        """
-        )
+        """)
 
 
 def get_user_info(chat_id: int):
