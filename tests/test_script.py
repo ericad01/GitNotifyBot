@@ -13,7 +13,7 @@ def temp_db(tmp_path, monkeypatch):
     db_file = str(tmp_path / "test.db")
     monkeypatch.setattr("script.DB_FILE", db_file)
     monkeypatch.setattr("config.DB_FILE", db_file)
-    import script
+    import src.script as script
 
     script.DB_FILE = db_file
     script.init_db()
@@ -21,7 +21,7 @@ def temp_db(tmp_path, monkeypatch):
 
 
 def test_init_db_creates_tables(temp_db):
-    import script
+    import src.script as script
 
     with sqlite3.connect(temp_db) as conn:
         tables = {
@@ -36,13 +36,13 @@ def test_init_db_creates_tables(temp_db):
 
 
 def test_get_user_token_missing(temp_db):
-    import script
+    import src.script as script
 
     assert script.get_user_token(9999) is None
 
 
 def test_get_user_token_present(temp_db):
-    import script
+    import src.script as script
 
     with sqlite3.connect(temp_db) as conn:
         conn.execute("INSERT INTO users VALUES (1, 'ghtoken123', 'testuser')")
@@ -50,13 +50,13 @@ def test_get_user_token_present(temp_db):
 
 
 def test_get_user_info_missing(temp_db):
-    import script
+    import src.script as script
 
     assert script.get_user_info(42) is None
 
 
 def test_get_user_info_present(temp_db):
-    import script
+    import src.script as script
 
     with sqlite3.connect(temp_db) as conn:
         conn.execute("INSERT INTO users VALUES (7, 'tok', 'mario')")
@@ -66,7 +66,7 @@ def test_get_user_info_present(temp_db):
 
 
 def test_delete_user_removes_all(temp_db):
-    import script
+    import src.script as script
 
     with sqlite3.connect(temp_db) as conn:
         conn.execute("INSERT INTO users VALUES (5, 'tok', 'user5')")
@@ -79,7 +79,7 @@ def test_delete_user_removes_all(temp_db):
 
 
 def test_add_and_load_repos(temp_db):
-    import script
+    import src.script as script
 
     script.add_repo_db(1, "user/repo", "main", "abc123")
     repos = script.load_all_repos()
@@ -88,7 +88,7 @@ def test_add_and_load_repos(temp_db):
 
 
 def test_add_repo_replace_existing(temp_db):
-    import script
+    import src.script as script
 
     script.add_repo_db(1, "user/repo", "main", "sha1")
     script.add_repo_db(1, "user/repo", "main", "sha2")
@@ -98,7 +98,7 @@ def test_add_repo_replace_existing(temp_db):
 
 
 def test_remove_repo_with_branch(temp_db):
-    import script
+    import src.script as script
 
     script.add_repo_db(1, "user/repo", "main", "sha1")
     script.add_repo_db(1, "user/repo", "dev", "sha2")
@@ -109,7 +109,7 @@ def test_remove_repo_with_branch(temp_db):
 
 
 def test_remove_repo_without_branch(temp_db):
-    import script
+    import src.script as script
 
     script.add_repo_db(1, "user/repo", "main", "sha1")
     script.add_repo_db(1, "user/repo", "dev", "sha2")
@@ -118,7 +118,7 @@ def test_remove_repo_without_branch(temp_db):
 
 
 def test_update_sha_db(temp_db):
-    import script
+    import src.script as script
 
     script.add_repo_db(1, "user/repo", "main", "oldsha")
     script.update_sha_db(1, "user/repo", "main", "newsha")
@@ -126,7 +126,7 @@ def test_update_sha_db(temp_db):
 
 
 def test_add_and_load_releases(temp_db):
-    import script
+    import src.script as script
 
     script.add_release_db(1, "user/repo", "v1.0")
     releases = script.load_all_releases()
@@ -135,7 +135,7 @@ def test_add_and_load_releases(temp_db):
 
 
 def test_update_release_db(temp_db):
-    import script
+    import src.script as script
 
     script.add_release_db(1, "user/repo", "v1.0")
     script.update_release_db(1, "user/repo", "v2.0")
@@ -143,7 +143,7 @@ def test_update_release_db(temp_db):
 
 
 def test_build_headers_no_token(temp_db):
-    import script
+    import src.script as script
 
     headers = script.build_headers(9999)
     assert "Authorization" not in headers
@@ -151,7 +151,7 @@ def test_build_headers_no_token(temp_db):
 
 
 def test_build_headers_with_token(temp_db):
-    import script
+    import src.script as script
 
     with sqlite3.connect(temp_db) as conn:
         conn.execute("INSERT INTO users VALUES (3, 'mytoken', 'user3')")
@@ -160,7 +160,7 @@ def test_build_headers_with_token(temp_db):
 
 
 def test_get_commits_since_api_error(temp_db):
-    import script
+    import src.script as script
 
     mock_resp = MagicMock()
     mock_resp.status_code = 404
@@ -171,7 +171,7 @@ def test_get_commits_since_api_error(temp_db):
 
 
 def test_get_commits_since_empty(temp_db):
-    import script
+    import src.script as script
 
     mock_resp = MagicMock()
     mock_resp.status_code = 200
@@ -183,7 +183,7 @@ def test_get_commits_since_empty(temp_db):
 
 
 def test_get_commits_since_new_commits(temp_db):
-    import script
+    import src.script as script
 
     commits_data = [
         {
@@ -207,7 +207,7 @@ def test_get_commits_since_new_commits(temp_db):
 
 
 def test_get_commits_since_no_new(temp_db):
-    import script
+    import src.script as script
 
     commits_data = [
         {
@@ -226,7 +226,7 @@ def test_get_commits_since_no_new(temp_db):
 
 
 def test_get_latest_release_error(temp_db):
-    import script
+    import src.script as script
 
     mock_resp = MagicMock()
     mock_resp.status_code = 404
@@ -236,7 +236,7 @@ def test_get_latest_release_error(temp_db):
 
 
 def test_get_latest_release_ok(temp_db):
-    import script
+    import src.script as script
 
     release_data = {
         "tag_name": "v1.2.3",
@@ -256,11 +256,8 @@ def test_get_latest_release_ok(temp_db):
     assert result["prerelease"] is False
 
 
-# Aggiungi in fondo a tests/test_script.py
-
-
 def test_get_latest_release_prerelease(temp_db):
-    import script
+    import src.script as script
 
     release_data = {
         "tag_name": "v2.0.0-beta",
@@ -287,7 +284,7 @@ def _make_commit(sha, msg, author, url="http://x"):
 
 
 def test_format_commit_digest_single(temp_db):
-    import script
+    import src.script as script
 
     commits = [_make_commit("abc1234", "feat: awesome", "Alice")]
     result = script.format_commit_digest("user/repo", "main", commits)
@@ -297,7 +294,7 @@ def test_format_commit_digest_single(temp_db):
 
 
 def test_format_commit_digest_many(temp_db):
-    import script
+    import src.script as script
 
     commits = [_make_commit(f"sha{i}", f"fix: thing {i}", "Bob") for i in range(8)]
     result = script.format_commit_digest("user/repo", "dev", commits)
@@ -306,7 +303,7 @@ def test_format_commit_digest_many(temp_db):
 
 
 def test_format_commit_digest_multiple_authors(temp_db):
-    import script
+    import src.script as script
 
     commits = [
         _make_commit("a1", "feat: x", "Alice"),
@@ -318,7 +315,7 @@ def test_format_commit_digest_multiple_authors(temp_db):
 
 
 def test_format_commit_digest_truncates_long_message(temp_db):
-    import script
+    import src.script as script
 
     commits = [
         _make_commit("abc1234", "feat: title\nThis is the body\nmore body", "Dev")

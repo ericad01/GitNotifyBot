@@ -32,18 +32,19 @@ jobs:
         run: isort --check-only .
 
       - name: Lint with pylint
-        run: pylint config.py oauth_server.py script.py
+        run: pylint src/config.py src/oauth_server.py src/script.py
 
       - name: Type check with mypy
-        run: mypy config.py oauth_server.py script.py --ignore-missing-imports
+        run: mypy src/config.py src/oauth_server.py src/script.py --ignore-missing-imports
 
       - name: Run tests with pytest
         run: pytest --cov=. --cov-report=term-missing
         env:
+          PYTHONPATH: src
           TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
           GITHUB_CLIENT_ID: ${{ secrets.GITHUB_CLIENT_ID }}
           GITHUB_CLIENT_SECRET: ${{ secrets.GITHUB_CLIENT_SECRET }}
           OAUTH_REDIRECT_URI: ${{ secrets.OAUTH_REDIRECT_URI }}
 
       - name: Lint with flake8
-        run: flake8 config.py oauth_server.py script.py --max-line-length=110
+        run: flake8 src/config.py src/oauth_server.py src/script.py --max-line-length=110

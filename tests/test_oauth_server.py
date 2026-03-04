@@ -11,7 +11,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 def temp_db(tmp_path, monkeypatch):
     db_file = str(tmp_path / "test_oauth.db")
     monkeypatch.setattr("oauth_server.DB_FILE", db_file)
-    import oauth_server
+    import src.oauth_server as oauth_server
 
     oauth_server.DB_FILE = db_file
     oauth_server.ensure_tables()
@@ -19,7 +19,7 @@ def temp_db(tmp_path, monkeypatch):
 
 
 def test_ensure_tables_creates_users_and_states(temp_db):
-    import oauth_server
+    import src.oauth_server as oauth_server
 
     oauth_server.ensure_tables()
     with sqlite3.connect(temp_db) as conn:
@@ -34,14 +34,14 @@ def test_ensure_tables_creates_users_and_states(temp_db):
 
 
 def test_save_and_pop_state(temp_db):
-    import oauth_server
+    import src.oauth_server as oauth_server
 
     oauth_server.save_state("mystate123", 42)
     assert oauth_server.pop_state("mystate123") == 42
 
 
 def test_pop_state_removes_record(temp_db):
-    import oauth_server
+    import src.oauth_server as oauth_server
 
     oauth_server.save_state("oneuse", 7)
     oauth_server.pop_state("oneuse")
@@ -49,13 +49,13 @@ def test_pop_state_removes_record(temp_db):
 
 
 def test_pop_state_nonexistent(temp_db):
-    import oauth_server
+    import src.oauth_server as oauth_server
 
     assert oauth_server.pop_state("doesnotexist") is None
 
 
 def test_save_github_token(temp_db):
-    import oauth_server
+    import src.oauth_server as oauth_server
 
     oauth_server.save_github_token(10, "ghp_token", "testuser")
     with sqlite3.connect(temp_db) as conn:
@@ -67,7 +67,7 @@ def test_save_github_token(temp_db):
 
 
 def test_save_github_token_replace(temp_db):
-    import oauth_server
+    import src.oauth_server as oauth_server
 
     oauth_server.save_github_token(10, "old_token", "userA")
     oauth_server.save_github_token(10, "new_token", "userA")
@@ -79,7 +79,7 @@ def test_save_github_token_replace(temp_db):
 def test_get_github_username_success(temp_db):
     from unittest.mock import MagicMock, patch
 
-    import oauth_server
+    import src.oauth_server as oauth_server
 
     mock_resp = MagicMock()
     mock_resp.status_code = 200
@@ -91,7 +91,7 @@ def test_get_github_username_success(temp_db):
 def test_get_github_username_failure(temp_db):
     from unittest.mock import MagicMock, patch
 
-    import oauth_server
+    import src.oauth_server as oauth_server
 
     mock_resp = MagicMock()
     mock_resp.status_code = 401
@@ -101,7 +101,7 @@ def test_get_github_username_failure(temp_db):
 
 @pytest.fixture()
 def client(temp_db, monkeypatch):
-    import oauth_server
+    import src.oauth_server as oauth_server
 
     oauth_server.app.config["TESTING"] = True
     with oauth_server.app.test_client() as c:
@@ -109,7 +109,7 @@ def client(temp_db, monkeypatch):
 
 
 def test_generate_oauth_url_format(temp_db, monkeypatch):
-    import oauth_server
+    import src.oauth_server as oauth_server
 
     monkeypatch.setattr(oauth_server, "GITHUB_CLIENT_ID", "test_client_id")
     monkeypatch.setattr(oauth_server, "OAUTH_REDIRECT_URI", "http://localhost/callback")
@@ -120,7 +120,7 @@ def test_generate_oauth_url_format(temp_db, monkeypatch):
 
 
 def test_generate_oauth_url_saves_state(temp_db, monkeypatch):
-    import oauth_server
+    import src.oauth_server as oauth_server
 
     monkeypatch.setattr(oauth_server, "GITHUB_CLIENT_ID", "cid")
     monkeypatch.setattr(oauth_server, "OAUTH_REDIRECT_URI", "http://localhost/cb")
@@ -140,7 +140,7 @@ def test_callback_invalid_state(client):
 def test_callback_valid_flow(client, temp_db):
     from unittest.mock import MagicMock, patch
 
-    import oauth_server
+    import src.oauth_server as oauth_server
 
     oauth_server.save_state("validstate", 123)
     token_resp = MagicMock()
@@ -160,7 +160,7 @@ def test_callback_valid_flow(client, temp_db):
 def test_callback_github_post_error(client, temp_db):
     from unittest.mock import MagicMock, patch
 
-    import oauth_server
+    import src.oauth_server as oauth_server
 
     oauth_server.save_state("s2", 456)
     mock_post = MagicMock()
@@ -172,7 +172,7 @@ def test_callback_github_post_error(client, temp_db):
 def test_callback_no_access_token(client, temp_db):
     from unittest.mock import MagicMock, patch
 
-    import oauth_server
+    import src.oauth_server as oauth_server
 
     oauth_server.save_state("s3", 789)
     mock_post = MagicMock()
