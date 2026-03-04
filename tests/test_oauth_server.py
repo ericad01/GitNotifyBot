@@ -1,7 +1,8 @@
-import sqlite3
-import pytest
-import sys
 import os
+import sqlite3
+import sys
+
+import pytest
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
@@ -76,7 +77,8 @@ def test_save_github_token_replace(temp_db):
 
 
 def test_get_github_username_success(temp_db):
-    from unittest.mock import patch, MagicMock
+    from unittest.mock import MagicMock, patch
+
     import oauth_server
 
     mock_resp = MagicMock()
@@ -87,7 +89,8 @@ def test_get_github_username_success(temp_db):
 
 
 def test_get_github_username_failure(temp_db):
-    from unittest.mock import patch, MagicMock
+    from unittest.mock import MagicMock, patch
+
     import oauth_server
 
     mock_resp = MagicMock()
@@ -135,7 +138,8 @@ def test_callback_invalid_state(client):
 
 
 def test_callback_valid_flow(client, temp_db):
-    from unittest.mock import patch, MagicMock
+    from unittest.mock import MagicMock, patch
+
     import oauth_server
 
     oauth_server.save_state("validstate", 123)
@@ -154,7 +158,8 @@ def test_callback_valid_flow(client, temp_db):
 
 
 def test_callback_github_post_error(client, temp_db):
-    from unittest.mock import patch, MagicMock
+    from unittest.mock import MagicMock, patch
+
     import oauth_server
 
     oauth_server.save_state("s2", 456)
@@ -165,7 +170,8 @@ def test_callback_github_post_error(client, temp_db):
 
 
 def test_callback_no_access_token(client, temp_db):
-    from unittest.mock import patch, MagicMock
+    from unittest.mock import MagicMock, patch
+
     import oauth_server
 
     oauth_server.save_state("s3", 789)

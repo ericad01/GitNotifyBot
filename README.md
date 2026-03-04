@@ -44,6 +44,9 @@ L’interazione con il bot è semplice e avviene interamente tramite comandi Tel
 ## Requisiti
 
 * Python 3.10 o superiore
+* Un bot Telegram (creato tramite [@BotFather](https://t.me/BotFather))
+* Un'applicazione GitHub OAuth ([crea qui](https://github.com/settings/developers))
+* Un server pubblico con HTTPS per il redirect OAuth (es. tramite [ngrok](https://ngrok.com/) in locale)
 
 
 ## Configurazione
@@ -102,13 +105,33 @@ OAUTH_REDIRECT_URI=https://<tuo-dominio>/callback
 
 ## Avvio
 
-Avvia il bot con:
+Il bot richiede **tre terminali** avviati in questo ordine:
+
+**Terminale 1 — Avvia il server OAuth Flask** (porta 5001):
+
+```bash
+python oauth_server.py
+```
+
+**Terminale 2 — Avvia ngrok** per esporre il server OAuth su internet:
+
+```bash
+ngrok http 5001
+```
+
+> Copia l'URL HTTPS che ngrok ti fornisce (es. `https://xxxx.ngrok-free.dev`) e aggiorna il file `.env`:
+> ```env
+> OAUTH_REDIRECT_URI=https://xxxx.ngrok-free.dev/callback
+> ```
+> ⚠️ Ogni volta che riavvii ngrok l'URL cambia: ricordati di aggiornare `.env` e le impostazioni dell'app OAuth su GitHub.
+
+**Terminale 3 — Avvia il bot Telegram:**
 
 ```bash
 python script.py
 ```
 
-Il server OAuth Flask viene avviato automaticamente sulla porta `5000`. Assicurati che l'URL configurato in `OAUTH_REDIRECT_URI` punti al tuo server sulla rotta `/callback`.
+Il bot è ora raggiungibile su Telegram: [@GitHubNotifyUNICTBot](https://t.me/GitHubNotifyUNICTBot)
 
 
 ## Testing e Qualità del Codice

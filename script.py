@@ -9,27 +9,17 @@ Features:
   - Reply keyboard persistente con tutti i comandi
 """
 
+import functools
 import logging
 import sqlite3
-import functools
-import requests
-from telegram import (
-    Update,
-    InlineKeyboardButton,
-    InlineKeyboardMarkup,
-    ReplyKeyboardMarkup,
-    KeyboardButton,
-    BotCommand,
-)
-from telegram.ext import (
-    ApplicationBuilder,
-    CommandHandler,
-    ContextTypes,
-    MessageHandler,
-    filters,
-)
 
-from config import TELEGRAM_TOKEN, DB_FILE, CHECK_INTERVAL
+import requests
+from telegram import (BotCommand, InlineKeyboardButton, InlineKeyboardMarkup,
+                      KeyboardButton, ReplyKeyboardMarkup, Update)
+from telegram.ext import (ApplicationBuilder, CommandHandler, ContextTypes,
+                          MessageHandler, filters)
+
+from config import CHECK_INTERVAL, DB_FILE, TELEGRAM_TOKEN
 from oauth_server import generate_oauth_url
 
 logging.basicConfig(
@@ -56,17 +46,14 @@ MAIN_KEYBOARD = ReplyKeyboardMarkup(
 
 def init_db():
     with sqlite3.connect(DB_FILE) as conn:
-        conn.execute(
-            """
+        conn.execute("""
             CREATE TABLE IF NOT EXISTS users (
                 chat_id         INTEGER PRIMARY KEY,
                 github_token    TEXT,
                 github_username TEXT
             )
-        """
-        )
-        conn.execute(
-            """
+        """)
+        conn.execute("""
             CREATE TABLE IF NOT EXISTS repos (
                 chat_id  INTEGER,
                 repo     TEXT,
@@ -74,18 +61,15 @@ def init_db():
                 last_sha TEXT,
                 PRIMARY KEY (chat_id, repo, branch)
             )
-        """
-        )
-        conn.execute(
-            """
+        """)
+        conn.execute("""
             CREATE TABLE IF NOT EXISTS releases (
                 chat_id  INTEGER,
                 repo     TEXT,
                 last_tag TEXT,
                 PRIMARY KEY (chat_id, repo)
             )
-        """
-        )
+        """)
 
 
 def get_user_token(chat_id: int):

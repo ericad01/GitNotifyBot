@@ -1,41 +1,35 @@
-import sqlite3
 import secrets
+import sqlite3
+
 import requests
 from flask import Flask, request
 
-from config import (
-    GITHUB_CLIENT_ID,
-    GITHUB_CLIENT_SECRET,
-    OAUTH_REDIRECT_URI,
-    DB_FILE,
-)
+from config import (DB_FILE, GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET,
+                    OAUTH_REDIRECT_URI)
 
 app = Flask(__name__)
 
 
 # ================= DB HELPERS =================
 
+
 def ensure_tables():
     """Crea le tabelle se non esistono (chiamata all'avvio)."""
     with sqlite3.connect(DB_FILE) as conn:
-        conn.execute(
-            """
+        conn.execute("""
             CREATE TABLE IF NOT EXISTS users (
                 chat_id         INTEGER PRIMARY KEY,
                 github_token    TEXT,
                 github_username TEXT
             )
-            """
-        )
-        conn.execute(
-            """
+            """)
+        conn.execute("""
             CREATE TABLE IF NOT EXISTS oauth_states (
                 state      TEXT PRIMARY KEY,
                 chat_id    INTEGER,
                 created_at DATETIME DEFAULT (datetime('now'))
             )
-            """
-        )
+            """)
 
 
 def save_state(state: str, chat_id: int):
@@ -70,7 +64,10 @@ def save_github_token(chat_id: int, token: str, username: str):
 def get_github_username(token: str):
     r = requests.get(
         "https://api.github.com/user",
-        headers={"Authorization": f"token {token}", "User-Agent": "Telegram-GitHub-Bot"},
+        headers={
+            "Authorization": f"token {token}",
+            "User-Agent": "Telegram-GitHub-Bot",
+        },
         timeout=10,
     )
     if r.status_code == 200:
@@ -79,6 +76,7 @@ def get_github_username(token: str):
 
 
 # ================= URL GENERATOR (usato da script.py) =================
+
 
 def generate_oauth_url(chat_id: int) -> str:
     """
@@ -101,10 +99,11 @@ def generate_oauth_url(chat_id: int) -> str:
 
 # ================= FLASK ROUTES =================
 
+
 @app.route("/callback")
 def github_callback():
     """GitHub reindirizza qui dopo che l'utente ha autorizzato l'app."""
-    code  = request.args.get("code")
+    code = request.args.get("code")
     state = request.args.get("state")
 
     chat_id = pop_state(state) if state else None
@@ -121,10 +120,10 @@ def github_callback():
         "https://github.com/login/oauth/access_token",
         headers={"Accept": "application/json"},
         data={
-            "client_id":     GITHUB_CLIENT_ID,
+            "client_id": GITHUB_CLIENT_ID,
             "client_secret": GITHUB_CLIENT_SECRET,
-            "code":          code,
-            "redirect_uri":  OAUTH_REDIRECT_URI,
+            "code": code,
+            "redirect_uri": OAUTH_REDIRECT_URI,
         },
         timeout=10,
     )
@@ -137,7 +136,10 @@ def github_callback():
     if not access_token:
         error = token_data.get("error", "sconosciuto")
         error_desc = token_data.get("error_description", "")
-        return f"<h2>❌ Token non ricevuto.</h2><p>Errore: {error} — {error_desc}</p>", 500
+        return (
+            f"<h2>❌ Token non ricevuto.</h2><p>Errore: {error} — {error_desc}</p>",
+            500,
+        )
 
     username = get_github_username(access_token) or "sconosciuto"
     save_github_token(chat_id, access_token, username)
