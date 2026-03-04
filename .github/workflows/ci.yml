@@ -32,10 +32,10 @@ jobs:
         run: isort --check-only .
 
       - name: Lint with pylint
-        run: pylint config.py src/oauth_server.py src/script.py
+        run: pylint src/config.py src/oauth_server.py src/script.py
 
       - name: Type check with mypy
-        run: mypy config.py src/oauth_server.py src/script.py --ignore-missing-imports
+        run: mypy src/config.py src/oauth_server.py src/script.py --ignore-missing-imports
 
       - name: Run tests with pytest
         run: pytest --cov=. --cov-report=term-missing
