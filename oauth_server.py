@@ -53,14 +53,6 @@ def pop_state(state: str):
     return None
 
 
-def save_github_token(chat_id: int, token: str, username: str):
-    with sqlite3.connect(DB_FILE) as conn:
-        conn.execute(
-            "INSERT OR REPLACE INTO users (chat_id, github_token, github_username) VALUES (?, ?, ?)",
-            (chat_id, token, username),
-        )
-
-
 def get_github_username(token: str):
     r = requests.get(
         "https://api.github.com/user",
@@ -73,6 +65,14 @@ def get_github_username(token: str):
     if r.status_code == 200:
         return r.json().get("login")
     return None
+
+
+def save_github_token(chat_id: int, token: str, username: str):
+    with sqlite3.connect(DB_FILE) as conn:
+        conn.execute(
+            "INSERT OR REPLACE INTO users (chat_id, github_token, github_username) VALUES (?, ?, ?)",
+            (chat_id, token, username),
+        )
 
 
 # ================= URL GENERATOR (usato da script.py) =================

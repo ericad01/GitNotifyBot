@@ -72,14 +72,6 @@ def init_db():
         """)
 
 
-def get_user_token(chat_id: int):
-    with sqlite3.connect(DB_FILE) as conn:
-        row = conn.execute(
-            "SELECT github_token FROM users WHERE chat_id=?", (chat_id,)
-        ).fetchone()
-    return row[0] if row else None
-
-
 def get_user_info(chat_id: int):
     with sqlite3.connect(DB_FILE) as conn:
         row = conn.execute(
@@ -87,6 +79,14 @@ def get_user_info(chat_id: int):
             (chat_id,),
         ).fetchone()
     return {"token": row[0], "username": row[1]} if row else None
+
+
+def get_user_token(chat_id: int):
+    with sqlite3.connect(DB_FILE) as conn:
+        row = conn.execute(
+            "SELECT github_token FROM users WHERE chat_id=?", (chat_id,)
+        ).fetchone()
+    return row[0] if row else None
 
 
 def delete_user(chat_id: int):
