@@ -212,3 +212,55 @@ def test_get_latest_release_ok(temp_db):
     assert result["tag"] == "v1.2.3"
     assert result["author"] == "devuser"
     assert result["prerelease"] is False
+
+# Aggiungi in fondo a tests/test_script.py
+
+def test_get_latest_release_prerelease(temp_db):
+    import script
+    release_data = {
+        "tag_name": "v2.0.0-beta", "name": "Beta", "body": "",
+        "html_url": "http://github.com", "author": {"login": "dev"}, "prerelease": True,
+    }
+    mock_resp = MagicMock()
+    mock_resp.status_code = 200
+    mock_resp.json.return_value = release_data
+    with patch("script.requests.get", return_value=mock_resp):
+        result = script.get_latest_release(1, "user/repo")
+    assert result["prerelease"] is True
+
+
+def _make_commit(sha, msg, author, url="http://x"):
+    return {"sha": sha, "commit": {"author": {"name": author}, "message": msg}, "html_url": url}
+
+
+def test_format_commit_digest_single(temp_db):
+    import script
+    commits = [_make_commit("abc1234", "feat: awesome", "Alice")]
+    result = script.format_commit_digest("user/repo", "main", commits)
+    assert "1 nuovi commit" in result
+    assert "Alice" in result
+    assert "abc1234" in result
+
+
+def test_format_commit_digest_many(temp_db):
+    import script
+    commits = [_make_commit(f"sha{i}", f"fix: thing {i}", "Bob") for i in range(8)]
+    result = script.format_commit_digest("user/repo", "dev", commits)
+    assert "8 nuovi commit" in result
+    assert "e altri 3 commit" in result
+
+
+def test_format_commit_digest_multiple_authors(temp_db):
+    import script
+    commits = [_make_commit("a1", "feat: x", "Alice"), _make_commit("b2", "fix: y", "Bob")]
+    result = script.format_commit_digest("user/repo", "main", commits)
+    assert "Alice" in result
+    assert "Bob" in result
+
+
+def test_format_commit_digest_truncates_long_message(temp_db):
+    import script
+    commits = [_make_commit("abc1234", "feat: title\nThis is the body\nmore body", "Dev")]
+    result = script.format_commit_digest("user/repo", "main", commits)
+    assert "feat: title" in result
+    assert "This is the body" not in result
