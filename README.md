@@ -41,6 +41,101 @@ L’interazione con il bot è semplice e avviene interamente tramite comandi Tel
 * `/remove owner/repo [branch]` | Rimuove il monitoraggio (branch specifico o tutta la repo) |
 
 
+## Requisiti
+
+* Python 3.10 o superiore
+
+
+## Configurazione
+
+1. **Clona il repository:**
+
+```bash
+git clone https://github.com/<owner>/GitNotifyBot.git
+cd GitNotifyBot
+```
+
+2. **Crea e attiva un ambiente virtuale (opzionale ma consigliato):**
+
+```bash
+python -m venv venv
+source venv/bin/activate   # Linux/macOS
+venv\Scripts\activate      # Windows
+```
+
+3. **Installa le dipendenze:**
+
+```bash
+pip install -r requirements.txt
+```
+
+Per lo sviluppo e il testing installa anche:
+
+```bash
+pip install -r requirements_dev.txt
+```
+
+4. **Configura le variabili d'ambiente:**
+
+Copia il file di esempio e compilalo con i tuoi valori:
+
+```bash
+cp .env.example .env
+```
+
+Modifica il file `.env`:
+
+```env
+TELEGRAM_TOKEN=il_tuo_token_telegram
+GITHUB_CLIENT_ID=il_tuo_client_id_github
+GITHUB_CLIENT_SECRET=il_tuo_client_secret_github
+OAUTH_REDIRECT_URI=https://<tuo-dominio>/callback
+```
+
+| Variabile | Descrizione |
+|---|---|
+| `TELEGRAM_TOKEN` | Token del bot ottenuto da @BotFather |
+| `GITHUB_CLIENT_ID` | Client ID dell'app OAuth GitHub |
+| `GITHUB_CLIENT_SECRET` | Client Secret dell'app OAuth GitHub |
+| `OAUTH_REDIRECT_URI` | URL di callback pubblico per GitHub OAuth |
+
+
+## Avvio
+
+Avvia il bot con:
+
+```bash
+python script.py
+```
+
+Il server OAuth Flask viene avviato automaticamente sulla porta `5000`. Assicurati che l'URL configurato in `OAUTH_REDIRECT_URI` punti al tuo server sulla rotta `/callback`.
+
+
+## Testing e Qualità del Codice
+
+Per eseguire i test:
+
+```bash
+pytest --cov=. --cov-report=term-missing
+```
+
+Per controllare la qualità del codice (gli stessi controlli eseguiti nella pipeline CI):
+
+```bash
+black --check .          # formattazione
+isort --check-only .     # ordine degli import
+pylint config.py oauth_server.py script.py
+mypy config.py oauth_server.py script.py --ignore-missing-imports
+```
+
+Per applicare automaticamente la formattazione:
+
+```bash
+black .
+isort .
+```
+
+
 ## Team di Sviluppo
 
 Questo progetto è sviluppato e mantenuto da:
