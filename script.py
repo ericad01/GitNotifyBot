@@ -9,17 +9,18 @@ Features:
   - Reply keyboard persistente con tutti i comandi
 """
 
+import functools
 import logging
 import sqlite3
-import functools
+
 import requests
 from telegram import (
-    Update,
+    BotCommand,
     InlineKeyboardButton,
     InlineKeyboardMarkup,
-    ReplyKeyboardMarkup,
     KeyboardButton,
-    BotCommand,
+    ReplyKeyboardMarkup,
+    Update,
 )
 from telegram.ext import (
     ApplicationBuilder,
@@ -29,7 +30,7 @@ from telegram.ext import (
     filters,
 )
 
-from config import TELEGRAM_TOKEN, DB_FILE, CHECK_INTERVAL
+from config import CHECK_INTERVAL, DB_FILE, TELEGRAM_TOKEN
 from oauth_server import generate_oauth_url
 
 logging.basicConfig(
@@ -56,17 +57,14 @@ MAIN_KEYBOARD = ReplyKeyboardMarkup(
 
 def init_db():
     with sqlite3.connect(DB_FILE) as conn:
-        conn.execute(
-            """
+        conn.execute("""
             CREATE TABLE IF NOT EXISTS users (
                 chat_id         INTEGER PRIMARY KEY,
                 github_token    TEXT,
                 github_username TEXT
             )
-        """
-        )
-        conn.execute(
-            """
+        """)
+        conn.execute("""
             CREATE TABLE IF NOT EXISTS repos (
                 chat_id  INTEGER,
                 repo     TEXT,
@@ -74,26 +72,15 @@ def init_db():
                 last_sha TEXT,
                 PRIMARY KEY (chat_id, repo, branch)
             )
-        """
-        )
-        conn.execute(
-            """
+        """)
+        conn.execute("""
             CREATE TABLE IF NOT EXISTS releases (
                 chat_id  INTEGER,
                 repo     TEXT,
                 last_tag TEXT,
                 PRIMARY KEY (chat_id, repo)
             )
-        """
-        )
-
-
-def get_user_token(chat_id: int):
-    with sqlite3.connect(DB_FILE) as conn:
-        row = conn.execute(
-            "SELECT github_token FROM users WHERE chat_id=?", (chat_id,)
-        ).fetchone()
-    return row[0] if row else None
+        """)
 
 
 def get_user_info(chat_id: int):
@@ -103,6 +90,14 @@ def get_user_info(chat_id: int):
             (chat_id,),
         ).fetchone()
     return {"token": row[0], "username": row[1]} if row else None
+
+
+def get_user_token(chat_id: int):
+    with sqlite3.connect(DB_FILE) as conn:
+        row = conn.execute(
+            "SELECT github_token FROM users WHERE chat_id=?", (chat_id,)
+        ).fetchone()
+    return row[0] if row else None
 
 
 def delete_user(chat_id: int):
@@ -477,8 +472,8 @@ async def check_repositories(context: ContextTypes.DEFAULT_TYPE):
                     parse_mode="Markdown",
                     disable_web_page_preview=True,
                 )
-        except Exception as e:
-            logging.error(f"Errore check commit {repo}@{branch}: {e}")
+        except Exception as e:  # pylint: disable=broad-exception-caught
+            logging.error("Errore check commit %s@%s: %s", repo, branch, e)
 
 
 async def check_releases(context: ContextTypes.DEFAULT_TYPE):
@@ -506,8 +501,8 @@ async def check_releases(context: ContextTypes.DEFAULT_TYPE):
                 await context.bot.send_message(
                     chat_id, msg, parse_mode="Markdown", disable_web_page_preview=True
                 )
-        except Exception as e:
-            logging.error(f"Errore check release {repo}: {e}")
+        except Exception as e:  # pylint: disable=broad-exception-caught
+            logging.error("Errore check release %s: %s", repo, e)
 
 
 # ================= MAIN =================

@@ -41,6 +41,124 @@ L’interazione con il bot è semplice e avviene interamente tramite comandi Tel
 * `/remove owner/repo [branch]` | Rimuove il monitoraggio (branch specifico o tutta la repo) |
 
 
+## Requisiti
+
+* Python 3.10 o superiore
+* Un bot Telegram (creato tramite [@BotFather](https://t.me/BotFather))
+* Un'applicazione GitHub OAuth ([crea qui](https://github.com/settings/developers))
+* Un server pubblico con HTTPS per il redirect OAuth (es. tramite [ngrok](https://ngrok.com/) in locale)
+
+
+## Configurazione
+
+1. **Clona il repository:**
+
+```bash
+git clone https://github.com/<owner>/GitNotifyBot.git
+cd GitNotifyBot
+```
+
+2. **Crea e attiva un ambiente virtuale (opzionale ma consigliato):**
+
+```bash
+python -m venv venv
+source venv/bin/activate   # Linux/macOS
+venv\Scripts\activate      # Windows
+```
+
+3. **Installa le dipendenze:**
+
+```bash
+pip install -r requirements.txt
+```
+
+Per lo sviluppo e il testing installa anche:
+
+```bash
+pip install -r requirements_dev.txt
+```
+
+4. **Configura le variabili d'ambiente:**
+
+Copia il file di esempio e compilalo con i tuoi valori:
+
+```bash
+cp .env.example .env
+```
+
+Modifica il file `.env`:
+
+```env
+TELEGRAM_TOKEN=il_tuo_token_telegram
+GITHUB_CLIENT_ID=il_tuo_client_id_github
+GITHUB_CLIENT_SECRET=il_tuo_client_secret_github
+OAUTH_REDIRECT_URI=https://<tuo-dominio>/callback
+```
+
+| Variabile | Descrizione |
+|---|---|
+| `TELEGRAM_TOKEN` | Token del bot ottenuto da @BotFather |
+| `GITHUB_CLIENT_ID` | Client ID dell'app OAuth GitHub |
+| `GITHUB_CLIENT_SECRET` | Client Secret dell'app OAuth GitHub |
+| `OAUTH_REDIRECT_URI` | URL di callback pubblico per GitHub OAuth |
+
+
+## Avvio
+
+Il bot richiede **tre terminali** avviati in questo ordine:
+
+**Terminale 1 — Avvia il server OAuth Flask** (porta 5001):
+
+```bash
+python oauth_server.py
+```
+
+**Terminale 2 — Avvia ngrok** per esporre il server OAuth su internet:
+
+```bash
+ngrok http 5001
+```
+
+> Copia l'URL HTTPS che ngrok ti fornisce (es. `https://xxxx.ngrok-free.dev`) e aggiorna il file `.env`:
+> ```env
+> OAUTH_REDIRECT_URI=https://xxxx.ngrok-free.dev/callback
+> ```
+> ⚠️ Ogni volta che riavvii ngrok l'URL cambia: ricordati di aggiornare `.env` e le impostazioni dell'app OAuth su GitHub.
+
+**Terminale 3 — Avvia il bot Telegram:**
+
+```bash
+python script.py
+```
+
+Il bot è ora raggiungibile su Telegram: [@GitHubNotifyUNICTBot](https://t.me/GitHubNotifyUNICTBot)
+
+
+## Testing e Qualità del Codice
+
+Per eseguire i test:
+
+```bash
+pytest --cov=. --cov-report=term-missing
+```
+
+Per controllare la qualità del codice (gli stessi controlli eseguiti nella pipeline CI):
+
+```bash
+black --check .          # formattazione
+isort --check-only .     # ordine degli import
+pylint config.py oauth_server.py script.py
+mypy config.py oauth_server.py script.py --ignore-missing-imports
+```
+
+Per applicare automaticamente la formattazione:
+
+```bash
+black .
+isort .
+```
+
+
 ## Team di Sviluppo
 
 Questo progetto è sviluppato e mantenuto da:
