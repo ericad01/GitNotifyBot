@@ -44,3 +44,6 @@ jobs:
           GITHUB_CLIENT_ID: ${{ secrets.GITHUB_CLIENT_ID }}
           GITHUB_CLIENT_SECRET: ${{ secrets.GITHUB_CLIENT_SECRET }}
           OAUTH_REDIRECT_URI: ${{ secrets.OAUTH_REDIRECT_URI }}
+
+      - name: Lint with flake8
+        run: flake8 config.py oauth_server.py script.py --max-line-length=110
