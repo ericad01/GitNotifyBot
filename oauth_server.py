@@ -4,8 +4,7 @@ import sqlite3
 import requests
 from flask import Flask, request
 
-from config import (DB_FILE, GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET,
-                    OAUTH_REDIRECT_URI)
+from config import DB_FILE, GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET, OAUTH_REDIRECT_URI
 
 app = Flask(__name__)
 
