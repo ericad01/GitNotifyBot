@@ -473,7 +473,9 @@ async def check_repositories(context: ContextTypes.DEFAULT_TYPE):
                     disable_web_page_preview=True,
                 )
         except Exception as e:
-            logging.error("Errore check commit %s@%s: %s", repo, branch, e)
+            logging.error(
+                "Errore check commit %s@%s: %s", repo, branch, e
+            )  # pylint: disable=broad-exception-caught
 
 
 async def check_releases(context: ContextTypes.DEFAULT_TYPE):
@@ -502,7 +504,9 @@ async def check_releases(context: ContextTypes.DEFAULT_TYPE):
                     chat_id, msg, parse_mode="Markdown", disable_web_page_preview=True
                 )
         except Exception as e:
-            logging.error("Errore check release %s: %s", repo, e)
+            logging.error(
+                "Errore check release %s: %s", repo, e
+            )  # pylint: disable=broad-exception-caught
 
 
 # ================= MAIN =================
